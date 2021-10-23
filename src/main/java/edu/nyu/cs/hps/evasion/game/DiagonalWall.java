@@ -11,6 +11,7 @@ public class DiagonalWall implements Wall {
     private int builddirection;
     
     DiagonalWall(int x1, int x2, int y1, int y2, int builddirection) {
+        // upper left: (x1,y1); lower right: (x2, y2)
         this.x1 = x1;
         this.x2 = x2;
         this.y1 = y1;
@@ -19,11 +20,11 @@ public class DiagonalWall implements Wall {
     }
     
     public boolean occupies (Point point) {
-        if (builddirection == 1) {
+        if (builddirection == 1) {      // (x1,y1),(x1,y1+1),(x1+1,y1+1)...(x2,y2)
             int offset = point.x - this.x1;
             return (this.y1 + offset == point.y || this.y1 + offset + 1 == point.y) && point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
         }
-        else {
+        else {                          // (x1,y1),(x1+1,y1),(x1+1,y1+1)...(x2,y2)
             int offset = point.y - this.y1;
             return (this.x1 + offset == point.x || this.x1 + offset + 1 == point.x) && point.x >= this.x1 && point.x <= this.x2 && point.y >= this.y1 && point.y <= this.y2;
         }
