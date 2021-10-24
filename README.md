@@ -1,6 +1,6 @@
 # evasion
 
-This is the implementation of the architecture for the [evasion game](http://cs.nyu.edu/courses/fall17/CSCI-GA.2965-001/evasion.html). Any questions, requests, or bug reporting, please contact me at et1503@nyu.edu or via class mailing list!
+This is the implementation of the architecture for the [evasion game](https://cs.nyu.edu/courses/fall21/CSCI-GA.2965-001/evasion.html). Any questions, requests, or bug reporting, please contact us at yt2239@nyu.edu or yl7452@nyu.edu.
 
 # Requirements
 
@@ -10,16 +10,6 @@ This is the implementation of the architecture for the [evasion game](http://cs.
 
 # Clone and build
 
-(on energon2)
-
-```
-git clone git@github.com:etytan/evasion.git
-cd evasion
-module load java-1.8
-mvn clean package
-```
-
-(locally)
 ```
 git clone git@github.com:etytan/evasion.git
 cd evasion
@@ -28,15 +18,6 @@ mvn clean package
 
 
 # Run
-
-(on energon2)
-
-```
-module load java-1.8
-java -jar ./target/evasion-1.0-SNAPSHOT.jar [player 1 port] [player 2 port] [max walls] [wall placement delay] ([display host] [display port])
-```
-
-(locally)
 
 ```
 java -jar ./target/evasion-1.0-SNAPSHOT.jar [player 1 port] [player 2 port] [max walls] [wall placement delay] ([display host] [display port])

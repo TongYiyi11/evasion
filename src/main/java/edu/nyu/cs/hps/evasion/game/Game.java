@@ -1,12 +1,17 @@
 package edu.nyu.cs.hps.evasion.game;
 
 import java.awt.*;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
 
     private GameState state;
+    private IO io;
+    private PrintWriter displayWriter;
+    private int hunterIndex;
+    private int preyIndex;
 
     public enum WallCreationType {
         NONE,
@@ -16,8 +21,13 @@ public class Game {
         COUNTERDIAGONAL
     }
 
-    public Game(int maxWalls, int wallPlacementDelay) {
+    public Game(int maxWalls, int wallPlacementDelay, IO io, PrintWriter displayWriter,
+                int hunterIndex, int preyIndex) {
         state = new GameState(maxWalls, wallPlacementDelay);
+        this.io = io;
+        this.displayWriter = displayWriter;
+        this.hunterIndex = hunterIndex;
+        this.preyIndex = preyIndex;
     }
 
     public boolean tick(WallCreationType hunterWallAction, List<Integer> hunterWallsToDelete, Point preyMovement) {
@@ -49,15 +59,23 @@ public class Game {
     }
 
     private boolean addWall(Wall wall) {
-        if (state.walls.size() < state.maxWalls && state.wallTimer <= 0) {
+        // cannot build wall due to time limit between wall creation and max wall limit
+        String msg = "";
+        if(state.wallTimer > 0){
+            msg = "error: " + io.getName(hunterIndex) + " cannot build wall due to time limit between wall creation";
+        }else if(state.walls.size() >= state.maxWalls){
+            msg = "error: " + io.getName(hunterIndex) + " cannot build wall due to max wall limit";
+        }else{
             state.walls.add(wall);
             state.wallTimer = state.wallPlacementDelay;
-            return true;
-        } else {
-            // TODO 7: generate message: cannot build wall due to time limit between wall creation
-            // TODO 8: generate message: cannot build wall due to max wall limit
+        }
+        if(msg.length() != 0){
+            io.sendLine(hunterIndex, msg);
+            System.out.println(msg);
+            displayWriter.println(msg);
             return false;
         }
+        return true;
     }
 
     private void removeWalls(List<Integer> indexList) {
@@ -88,23 +106,34 @@ public class Game {
         return (state.ticknum % 2) != 0;
     }
 
+    private boolean errorTouch(Point p, Point hunterPos, Point preyPos){
+        String msg = "";
+        if(p.equals(hunterPos)){
+            msg = "error: " + io.getName(hunterIndex) + " cannot build wall due to touching hunter";
+        }else if(p.equals(preyPos)){
+            msg = "error: " + io.getName(hunterIndex) + " cannot build wall due to touching prey";
+        }
+        if(msg.length() != 0){
+            io.sendLine(hunterIndex, msg);
+            System.out.println(msg);
+            displayWriter.println(msg);
+            return true;
+        }
+        return false;
+    }
+
     private boolean doBuildAction(Point pos, WallCreationType action) {
-        // TODO 9: cannot build wall to squish H ??
         if (action == WallCreationType.HORIZONTAL) {
             Point greater = new Point(pos);
             Point lesser = new Point(pos);
             while (!isOccupied(greater)) {
-                if (greater.equals(state.hunterPosAndVel.pos) || greater.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 greater.x++;
             }
             while (!isOccupied(lesser)) {
-                if (lesser.equals(state.hunterPosAndVel.pos) || lesser.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 lesser.x--;
             }
             HorizontalWall horizontalWall = new HorizontalWall(pos.y, lesser.x + 1, greater.x - 1);
@@ -113,17 +142,13 @@ public class Game {
             Point greater = new Point(pos);
             Point lesser = new Point(pos);
             while (!isOccupied(greater)) {
-                if (greater.equals(state.hunterPosAndVel.pos) || greater.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 greater.y++;
             }
             while (!isOccupied(lesser)) {
-                if (lesser.equals(state.hunterPosAndVel.pos) || lesser.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 lesser.y--;
             }
             VerticalWall verticalWall = new VerticalWall(pos.x, lesser.y + 1, greater.y - 1);
@@ -134,10 +159,8 @@ public class Game {
             int count = 0;
             int builddirection = 0;
             while (!isOccupied(greater)) {
-                if (greater.equals(state.hunterPosAndVel.pos) || greater.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 if (count % 2 == 0) {
                     greater.y++;
                 } else {
@@ -152,10 +175,8 @@ public class Game {
             }
             count = 0;
             while (!isOccupied(lesser)) {
-                if (lesser.equals(state.hunterPosAndVel.pos) || lesser.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 if (count % 2 == 0) {
                     lesser.x--;
                 } else {
@@ -178,10 +199,8 @@ public class Game {
             int count = 0;
             int builddirection = 0;
             while (!isOccupied(greater)) {
-                if (greater.equals(state.hunterPosAndVel.pos) || greater.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 if (count % 2 == 0) {
                     greater.y--;
                 } else {
@@ -196,10 +215,8 @@ public class Game {
             }
             count = 0;
             while (!isOccupied(lesser)) {
-                if (lesser.equals(state.hunterPosAndVel.pos) || lesser.equals(state.preyPos)) {
-                    // TODO 6: generate message: cannot build wall due to touching H or P
-                    return false;
-                }
+                // cannot build wall due to touching H or P
+                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
                 if (count % 2 == 0) {
                     lesser.x--;
                 } else {
@@ -230,11 +247,66 @@ public class Game {
             newPosAndVel.pos = target;
         } else {    // bouncing
             if (newPosAndVel.vel.x == 0 || newPosAndVel.vel.y == 0) {
-                // TODO 3: deal with diagonal, counter diagonal cases and corresponding special case 3
+                // deal with diagonal, counter diagonal cases and corresponding special case 3
                 if (newPosAndVel.vel.x != 0) {
                     newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                    boolean oneUp = isOccupied(add(newPosAndVel.pos, new Point(0, 1)));
+                    boolean oneDown = isOccupied(add(newPosAndVel.pos, new Point(0, -1)));
+                    if (oneUp && oneDown) {
+                        newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                    } else if (oneUp) {
+                        newPosAndVel.vel.x = 0;
+                        newPosAndVel.vel.y = -1;
+                        newPosAndVel.pos.y -= 1;
+                    } else if (oneDown) {
+                        newPosAndVel.vel.x = 0;
+                        newPosAndVel.vel.y = 1;
+                        newPosAndVel.pos.y += 1;
+                    } else {
+                        boolean oneUpTwoRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x * 2, 1)));
+                        boolean oneDownTwoRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x * 2, -1)));
+                        if ((oneUpTwoRight && oneDownTwoRight) || (!oneUpTwoRight && !oneDownTwoRight)) {
+                            newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                        } else if (oneDownTwoRight) {
+                            newPosAndVel.vel.x = 0;
+                            newPosAndVel.vel.y = -1;
+                            newPosAndVel.pos.y -= 1;
+                        } else {
+                            newPosAndVel.vel.x = 0;
+                            newPosAndVel.vel.y = 1;
+                            newPosAndVel.pos.y += 1;
+                        }
+                    }
+
                 } else {
                     newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                    boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(1, 0)));
+                    boolean oneLeft = isOccupied(add(newPosAndVel.pos, new Point(-1, 0)));
+                    if (oneRight && oneLeft) {
+                        newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                    } else if (oneRight) {
+                        newPosAndVel.vel.x = -1;
+                        newPosAndVel.vel.y = 0;
+                        newPosAndVel.pos.x -= 1;
+                    } else if (oneLeft) {
+                        newPosAndVel.vel.x = 1;
+                        newPosAndVel.vel.y = 0;
+                        newPosAndVel.pos.y += 1;
+                    } else {
+                        boolean twoUpOneRight = isOccupied(add(newPosAndVel.pos, new Point(1, newPosAndVel.vel.y * 2)));
+                        boolean twoUpOneLeft = isOccupied(add(newPosAndVel.pos, new Point(-1, newPosAndVel.vel.y * 2)));
+                        if ((twoUpOneRight && twoUpOneLeft) || (!twoUpOneRight && !twoUpOneLeft)) {
+                            newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                        } else if (twoUpOneLeft) {
+                            newPosAndVel.vel.x = -1;
+                            newPosAndVel.vel.y = 0;
+                            newPosAndVel.pos.x -= 1;
+                        } else {
+                            newPosAndVel.vel.x = 1;
+                            newPosAndVel.vel.y = 0;
+                            newPosAndVel.pos.y += 1;
+                        }
+                    }
                 }
             } else {
                 boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x, 0)));
@@ -251,15 +323,14 @@ public class Game {
                 } else {                  // expand search
                     boolean twoUpOneRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x, newPosAndVel.vel.y * 2)));
                     boolean oneUpTwoRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x * 2, newPosAndVel.vel.y)));
-                    if ((twoUpOneRight && oneUpTwoRight) || (!twoUpOneRight && !oneUpTwoRight)) {   // hit corner or diagonal/counter diagonal
+                    if ((twoUpOneRight && oneUpTwoRight) || (!twoUpOneRight && !oneUpTwoRight)) {
+                        // hit corner or hit diagonal/counter diagonal vertically
                         newPosAndVel.vel.x = -newPosAndVel.vel.x;
                         newPosAndVel.vel.y = -newPosAndVel.vel.y;
                     } else if (twoUpOneRight) {   // hit vertical wall end
-                        // TODO 4: deal with special case 3
                         newPosAndVel.vel.x = -newPosAndVel.vel.x;
                         newPosAndVel.pos.y = target.y;
                     } else {                      // hit horizontal wall end
-                        // TODO 5: deal with special case 3
                         newPosAndVel.vel.y = -newPosAndVel.vel.y;
                         newPosAndVel.pos.x = target.x;
                     }

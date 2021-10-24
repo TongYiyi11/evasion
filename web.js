@@ -23,6 +23,7 @@ var prey = "";
 var results = [];
 var finalresult = "";
 var state = "";
+var msgs = [];
 
 net.createServer(function (socket) {
     var i = rl.createInterface(socket, socket);
@@ -39,6 +40,8 @@ net.createServer(function (socket) {
             finalresult = "";
         } else if (line.startsWith("finalresult: ")) {
             finalresult = line.substring(13);
+        } else if (line.startsWith("error: ")) {
+            msgs.push(line);
         } else if (line == "done") {
         } else if (line == "begin") {
             hunter = "";
@@ -56,6 +59,7 @@ net.createServer(function (socket) {
         obj.results = results;
         obj.finalresult = finalresult;
         obj.state = state;
+        obj.msgs = msgs;
         io.sockets.emit('to_client', obj);
     });
     socket.on('error', function (err) {

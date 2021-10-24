@@ -59,7 +59,7 @@ public class GameHost {
             Duration hunterTime = Duration.ofSeconds(120);
             Duration preyTime = Duration.ofSeconds(120);
 
-            Game game = new Game(maxWalls, wallPlacementDelay);
+            Game game = new Game(maxWalls, wallPlacementDelay, io, displayWriter, hunterIndex, preyIndex);
 
             io.sendLine(hunterIndex, "hunter");
             io.sendLine(preyIndex, "prey");
@@ -105,31 +105,25 @@ public class GameHost {
                     preyTimeout = true;
                 }
 
-                if (hunterTimeout || preyTimeout) {
-                    String result;
-                    if (hunterTimeout && preyTimeout) {
-                        result = "Both time out on tick " + game.getState().ticknum + "! Trying to resume...";
-                    } else if (hunterTimeout) {
-                        result = io.getName(hunterIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
-                    } else {
-                        result = io.getName(preyIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
-                    }
-                    System.out.println(result);
-                    if (hunterTimeout) {
-                        hunterResponseFuture.get();
-                    }
-                    if (preyTimeout) {
-                        preyResponseFuture.get();
-                    }
-                    break;
-                }
+//                if (hunterTimeout || preyTimeout) {
+//                    String result;
+//                    if (hunterTimeout && preyTimeout) {
+//                        result = "Both time out on tick " + game.getState().ticknum + "! Trying to resume...";
+//                    } else if (hunterTimeout) {
+//                        result = io.getName(hunterIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
+//                    } else {
+//                        result = io.getName(preyIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
+//                    }
+//                    System.out.println(result);
+//                    if (hunterTimeout) {
+//                        hunterResponseFuture.get();
+//                    }
+//                    if (preyTimeout) {
+//                        preyResponseFuture.get();
+//                    }
+//                    break;
+//                }
 
-
-                hunterTime = hunterTime.minus(hunterResponse.elapsed);
-                preyTime = preyTime.minus(preyResponse.elapsed);
-
-                hunterTimeout = hunterTime.isNegative();
-                preyTimeout = preyTime.isNegative();
 
                 if (hunterTimeout || preyTimeout) {
                     String result;
@@ -144,6 +138,9 @@ public class GameHost {
                     break;
                 }
 
+                hunterTime = hunterTime.minus(hunterResponse.elapsed);
+                preyTime = preyTime.minus(preyResponse.elapsed);
+
                 Game.WallCreationType hunterWallAction = Game.WallCreationType.NONE;
                 List<Integer> hunterWallsToDelete = new ArrayList<>();
                 Point preyMovement = new Point(0, 0);
@@ -153,38 +150,52 @@ public class GameHost {
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
 
-                if (hunterData.get(0) == gameNum && hunterData.get(1) == game.getState().ticknum) {
-                    if (hunterData.size() >= 3) {
-                        if (hunterData.get(2) == 1) {
-                            hunterWallAction = Game.WallCreationType.HORIZONTAL;
-                        } else if (hunterData.get(2) == 2) {
-                            hunterWallAction = Game.WallCreationType.VERTICAL;
-                        } else if (hunterData.get(2) == 3) {
-                            hunterWallAction = Game.WallCreationType.DIAGONAL;
-                        } else if (hunterData.get(2) == 4) {
-                            hunterWallAction = Game.WallCreationType.COUNTERDIAGONAL;
-                        }
-                        hunterWallsToDelete = hunterData.subList(3, hunterData.size());
-                    } else {
-                        // TODO 1: deal with invalid hunter data
+                // deal with invalid hunter data
+                String msg = "";
+                if(hunterData.get(0) != gameNum){
+                    msg = "error: " + io.getName(hunterIndex) + " send wrong gameNum";
+                }else if(hunterData.get(1) != game.getState().ticknum){
+                    msg = "error: " + io.getName(hunterIndex) + " missed tick " + game.getState().ticknum;
+                }else if(hunterData.size() < 3){
+                    msg = "error: " + io.getName(hunterIndex) + " send invalid operation";
+                }else{
+                    if (hunterData.get(2) == 1) {
+                        hunterWallAction = Game.WallCreationType.HORIZONTAL;
+                    } else if (hunterData.get(2) == 2) {
+                        hunterWallAction = Game.WallCreationType.VERTICAL;
+                    } else if (hunterData.get(2) == 3) {
+                        hunterWallAction = Game.WallCreationType.DIAGONAL;
+                    } else if (hunterData.get(2) == 4) {
+                        hunterWallAction = Game.WallCreationType.COUNTERDIAGONAL;
                     }
-                } else {
-                    System.out.println(io.getName(hunterIndex) + " is lagging; missed tick " + game.getState().ticknum);
+                    hunterWallsToDelete = hunterData.subList(3, hunterData.size());
+                }
+                if(msg.length() != 0){
+                    io.sendLine(hunterIndex, msg);
+                    System.out.println(msg);
+                    displayWriter.println(msg);
                 }
 
                 // parse prey move
                 List<Integer> preyData = Arrays.stream(preyResponse.message.split("\\s+"))
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
-                if (preyData.get(0) == gameNum && preyData.get(1) == game.getState().ticknum) {
-                    if (preyData.size() >= 4) {
-                        preyMovement.x = preyData.get(2);
-                        preyMovement.y = preyData.get(3);
-                    } else {
-                        // TODO 2: deal with invalid prey data
-                    }
-                } else {
-                    System.out.println(io.getName(preyIndex) + " is lagging; missed tick " + game.getState().ticknum);
+                // deal with invalid prey data
+                msg = "";
+                if(preyData.get(0) != gameNum){
+                    msg = "error: " + io.getName(preyIndex) + " send wrong gameNum";
+                }else if(preyData.get(1) != game.getState().ticknum){
+                    msg = "error: " + io.getName(preyIndex) + " missed tick " + game.getState().ticknum;
+                }else if(preyData.size() < 4){
+                    msg = "error: " + io.getName(preyIndex) + " send invalid operation";
+                }else{
+                    preyMovement.x = preyData.get(2);
+                    preyMovement.y = preyData.get(3);
+                }
+                if(msg.length() != 0){
+                    io.sendLine(preyIndex, msg);
+                    System.out.println(msg);
+                    displayWriter.println(msg);
                 }
 
                 done = game.tick(hunterWallAction, hunterWallsToDelete, preyMovement);
@@ -193,7 +204,7 @@ public class GameHost {
             // update scores of two players for this turn
             long latestScore;
             if (hunterTimeout && !preyTimeout) {
-                latestScore = Long.MAX_VALUE / 2;
+                latestScore = Long.MAX_VALUE / 2 - 1;
             } else {
                 latestScore = game.getState().ticknum;
             }

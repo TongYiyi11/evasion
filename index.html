@@ -7,20 +7,31 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 
-		<canvas id="canvas" width="302" height="302">
+		<canvas id="canvas" width="302" height="302" style="display: block;margin: auto;">
                   Your browser does not support the HTML5 canvas tag.
         </canvas><br /><br />
 
-		<span id="hunter-name" style="color:darkred;"></span> vs <span id="prey-name" style="color:darkgreen;"></span><br />
-		<br />
-		Tick number: <span id="tick"></span><br />
-		Time left: <span id="hunter-tl" style="color:darkred;"></span> <span id="prey-tl" style="color:darkgreen;"></span><br />
-		<br />
-		Active game results:<br />
-		<span id="results1"></span><br />
-		<span id="results2"></span><br />
-		<br />
-		Active set results: <span id="final-result"></span><br />
+		<div style="text-align: center;">
+			<span id="hunter-name" style="color:rgb(255 106 106);"></span> vs <span id="prey-name"
+																					style="color:rgb(0 191 255);"></span><br/>
+			<br/>
+			Tick number: <span id="tick"></span><br/>
+			Time left: <span id="hunter-tl" style="color:rgb(255 106 106);"></span> <span id="prey-tl"
+																						  style="color:rgb(0 191 255);"></span><br/>
+			<br/>
+			<b>Active game results:</b><br/>
+			<br/>
+			<span id="results1"></span><br/>
+			<span id="results2"></span><br/>
+			<br/>
+			<b>Active set results:</b><br/>
+			<span id="final-result"></span><br/>
+			<br/>
+		</div>
+		<br/>
+		<b>Error message:</b><br/>
+		<span id="msgs"></span><br/>
+		<br/>
 		<br />
 		<br />
 		<a href="javascript:;" id="live">Live</a> <a href="javascript:;" id="play">Play</a> <a href="javascript:;" id="pause">Pause</a> &nbsp;&nbsp;&nbsp; <a href="javascript:;" id="x1">x1.0</a> <a href="javascript:;" id="x2">x2.0</a> <a href="javascript:;" id="x4">x4.0</a> <a href="javascript:;" id="x8">x8.0</a><br />
@@ -43,6 +54,7 @@
             obj.prey = "";
             obj.results = [];
             obj.finalresult = "";
+			obj.msgs = "";
 
             paint(obj);
 
@@ -105,10 +117,10 @@
 
 		            $("#tick").text(data[3]);
 
-		            $("#hunter-tl").text(data[0]/1000.0);
-		            $("#prey-tl").text(data[1]/1000.0);
+		            $("#hunter-tl").text(data[0]/1000.0);   // hunter time left
+		            $("#prey-tl").text(data[1]/1000.0);     // player time left
 
-		            ctx.fillStyle = "white";
+		            ctx.fillStyle = "rgb(238 216 174)";
 		            ctx.fillRect(0, 0, 303, 303);
 
 		            ctx.translate(0.5, 0.5);
@@ -124,10 +136,10 @@
 		            ctx.lineTo(0, 0);
 		            ctx.stroke();
 
-		            ctx.fillStyle = "red";
+		            ctx.fillStyle = "rgb(255 106 106)";
 		            ctx.fillRect(data[9], data[10], 3, 3);
 
-		            ctx.fillStyle = "green";
+		            ctx.fillStyle = "rgb(0 191 255)";
 		            ctx.fillRect(data[13], data[14], 3, 3);
 
                     var pos = 16;
@@ -171,6 +183,13 @@
 		            }
 		            ctx.translate(-0.5, -0.5);
 	            }
+				if (obj.msgs.length > 0) {
+					var s = "";
+					for (const m of obj.msgs){
+						s += m + "<br>";
+					}
+					var temp = $("#msgs").html(s);
+				}
             }
 
             setInterval(function(){
