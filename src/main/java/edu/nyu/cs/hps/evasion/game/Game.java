@@ -232,9 +232,62 @@ public class Game {
             if (newPosAndVel.vel.x == 0 || newPosAndVel.vel.y == 0) {
                 // TODO 3: deal with diagonal, counter diagonal cases and corresponding special case 3
                 if (newPosAndVel.vel.x != 0) {
-                    newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                    boolean oneUp = isOccupied(add(newPosAndVel.pos, new Point(0, 1)));
+                    boolean oneDown = isOccupied(add(newPosAndVel.pos, new Point(0, -1)));
+                    if (oneUp && oneDown) {
+                        newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                    } else if (oneUp) {
+                        newPosAndVel.vel.x = 0;
+                        newPosAndVel.vel.y = -1;
+                        newPosAndVel.pos.y -= 1;
+                    } else if (oneDown) {
+                        newPosAndVel.vel.x = 0;
+                        newPosAndVel.vel.y = 1;
+                        newPosAndVel.pos.y += 1;
+                    } else {
+                        boolean oneUpTwoRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x * 2, 1)));
+                        boolean oneDownTwoRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x * 2, -1)));
+                        if ((oneUpTwoRight && oneDownTwoRight) || (!oneUpTwoRight && !oneDownTwoRight)) {
+                            newPosAndVel.vel.x = -newPosAndVel.vel.x;
+                        } else if (oneDownTwoRight) {
+                            newPosAndVel.vel.x = 0;
+                            newPosAndVel.vel.y = -1;
+                            newPosAndVel.pos.y -= 1;
+                        } else {
+                            newPosAndVel.vel.x = 0;
+                            newPosAndVel.vel.y = 1;
+                            newPosAndVel.pos.y += 1;
+                        }
+                    }
+
                 } else {
-                    newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                    boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(1, 0)));
+                    boolean oneLeft = isOccupied(add(newPosAndVel.pos, new Point(-1, 0)));
+                    if (oneRight && oneLeft) {
+                        newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                    } else if (oneRight) {
+                        newPosAndVel.vel.x = -1;
+                        newPosAndVel.vel.y = 0;
+                        newPosAndVel.pos.x -= 1;
+                    } else if (oneLeft) {
+                        newPosAndVel.vel.x = 1;
+                        newPosAndVel.vel.y = 0;
+                        newPosAndVel.pos.y += 1;
+                    } else {
+                        boolean twoUpOneRight = isOccupied(add(newPosAndVel.pos, new Point(1, newPosAndVel.vel.y * 2)));
+                        boolean twoUpOneLeft = isOccupied(add(newPosAndVel.pos, new Point(-1, newPosAndVel.vel.y * 2)));
+                        if ((twoUpOneRight && twoUpOneLeft) || (!twoUpOneRight && !twoUpOneLeft)) {
+                            newPosAndVel.vel.y = -newPosAndVel.vel.y;
+                        } else if (twoUpOneLeft) {
+                            newPosAndVel.vel.x = -1;
+                            newPosAndVel.vel.y = 0;
+                            newPosAndVel.pos.x -= 1;
+                        } else {
+                            newPosAndVel.vel.x = 1;
+                            newPosAndVel.vel.y = 0;
+                            newPosAndVel.pos.y += 1;
+                        }
+                    }
                 }
             } else {
                 boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x, 0)));
