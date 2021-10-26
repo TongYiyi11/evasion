@@ -11,7 +11,7 @@ This is the implementation of the architecture for the [evasion game](https://cs
 # Clone and build
 
 ```
-git clone git@github.com:etytan/evasion.git
+git clone git@github.com:TongYiyi11/evasion.git
 cd evasion
 mvn clean package
 ```
