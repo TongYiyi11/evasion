@@ -46,14 +46,28 @@ Immediately after that, the game will commence and the server will begin sending
 ```
 [playerTimeLeft] [gameNum] [tickNum] [maxWalls] [wallPlacementDelay] [boardsizeX] [boardsizeY] [currentWallTimer] [hunterXPos] [hunterYPos] [hunterXVel] [hunterYVel] [preyXPos] [preyYPos] [numWalls] {wall1 info} {wall2 info} ... 
 ```
+`[gameNum]`: 0 for the first round and 1 for the second round after switching roles.
 
-Each "{wall info}" above is just a set of numbers describing a wall on the playing field. There will be `[numWalls]` such sets.
+`[tickNum]`: current time unit.
+
+`[currentWallTimer]`: remain time to allow creation of the next wall.
+
+`[hunterXvel]` and `[hunterYvel]`: velocity of hunter, -1 or 1 at x or y direction.
+
+`{wall info}`: a set of numbers describing a wall on the playing field. There will be `[numWalls]` such sets.
 
 A horizontal wall is identified by: `0 [y] [x1] [x2]` where `y` is its y location, `x1` is the x location of its left-most pixel (i.e. smaller x value), and `x2` is the x location of its right-most pixel (i.e. larger x value). 
 
 A vertical wall is identified by: `1 [x] [y1] [y2]` where `x` is its x location, `y1` is the y location of its bottom-most pixel (i.e. smaller y value), and `y2` is the y location of its top-most pixel (i.e. larger y value).
 
 A diagonal wall is identified by: `2 [x1] [x2] [y1] [y2] [builddirection]` where the line from (x1,y1) to (x2,y2) represents the diagonal wall and builddirection represents whether the line began by incrementing in the x or y direction from its starting point. The value  `builddirection` will be a 0 if the line was begun by building in the x direction from its starting point (x1,y1), or a 1 if the line was begun by building in the y direction.
+
+```
+* *                           *
+  * *                         * *
+                                *
+  builddirection = 0       builddirection = 1
+```
 
 As an example, given `2 0 1 0 1 0`, the line would be represented by the points: (0,0), (1,0), (1,1). Given `2 0 1 0 1 1`, the line would be represented by the points: (0,0), (0,1), (1,1).
 
@@ -76,6 +90,7 @@ In response to each received game state message, the hunter should send the foll
 `[gameNum]` and `[tickNum]` should be relayed directly back to the server based on which game state message this action is in response to. 
 
 `[wall type to add]` should be 0 for no wall, 1 for horizontal wall, 2 for vertical wall, 3 for diagonal wall, 4 for counterdiagonal wall. There is no penalty for asking for a wall that can't be built for whatever reason.
+
 
 Note about diagonals:
 
@@ -151,6 +166,8 @@ First the pixels adjacent to both the hunter and the one being hit are considere
 
 (The same calculations are mirrored about the relevant axes for the other three directions in which the hunter can be traveling.)
 
+Note: The hunter may receive error message due to violating building rules (which will also be displayed on the screen) but will not be penalized.
+
 # Prey
 
 In response to each received game state message, the prey should send the following:
@@ -162,6 +179,31 @@ In response to each received game state message, the prey should send the follow
 `[gameNum]` and `[tickNum]` should be relayed directly back to the server based on which game state message this action is in response to. 
 
 The x and y movement specifies the direction in which the prey wishes to travel. This should be 1, 0, or -1 for each -- values outside this range will be clamped. On ticks in which the prey can't move (`tickNum % 2 == 0`), these fields will have no effect, but placeholder values should still be sent.
+
+The prey bounce behavior is similar to hunter except that prey can move horizontally or vertically. So below cases are considered:
+```
+
++-+-+    +-+-+
+|*| |    |*| |
++-+-+ -> +-+-+
+|*|←|    |*|→|  
++-+-+    +-+-+       (8)
+
++-+-+-+    +-+-+-+
+| |*|←|    | |*| |
++-+-+-+ -> +-+-+-+
+|*| | |    |*|↓| | 
++-+-+-+    +-+-+-+   (9)
+
++-+-+-+    +-+-+-+
+| |*| |    | |*| |
++-+-+-+ -> +-+-+-+
+|*|←| |    |*|→| | 
++-+-+-+    +-+-+-+   
+| |*| |    | |*| | 
++-+-+-+    +-+-+-+   (10)
+
+```
 
 # Capture
 
@@ -194,4 +236,4 @@ To run: `python random_player.py [port on which to connect]`
 
 # Acknowledgements
 
-Original implementation provided by https://github.com/danielrotar/evasion
+Original implementation provided by https://github.com/etytan/evasion, https://github.com/danielrotar/evasion

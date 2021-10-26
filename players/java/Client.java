@@ -86,12 +86,12 @@ public class Client {
                 out.println(tosend);
             }
 
-//            try {
-//                Thread.sleep(100);
-//            }
-//            catch(InterruptedException ex) {
-//                Thread.currentThread().interrupt();
-//            }
+            try {
+                Thread.sleep(10);
+            }
+            catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
         }
 
     }
