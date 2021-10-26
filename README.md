@@ -190,9 +190,11 @@ The prey bounce behavior is similar to hunter except that prey can move horizont
 +-+-+    +-+-+       (8)
 
 +-+-+-+    +-+-+-+
+| | |*|    | | |*|
++-+-+-+    +-+-+-+
 | |*|←|    | |*| |
 +-+-+-+ -> +-+-+-+
-|*| | |    |*|↓| | 
+|*| | |    |*| |↓| 
 +-+-+-+    +-+-+-+   (9)
 
 +-+-+-+    +-+-+-+
