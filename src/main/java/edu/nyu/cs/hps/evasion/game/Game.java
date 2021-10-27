@@ -255,7 +255,7 @@ public class Game {
                 // deal with diagonal, counter diagonal cases and corresponding special case 3
                 if (newPosAndVel.vel.x != 0) {
                     newPosAndVel.vel.x = -newPosAndVel.vel.x;
-                    boolean oneUp = isOccupied(add(newPosAndVel.pos, new Point(0, 1)));
+                    /*boolean oneUp = isOccupied(add(newPosAndVel.pos, new Point(0, 1)));
                     boolean oneDown = isOccupied(add(newPosAndVel.pos, new Point(0, -1)));
                     if (oneUp && oneDown) {
                         newPosAndVel.vel.x = -newPosAndVel.vel.x;
@@ -281,11 +281,11 @@ public class Game {
                             newPosAndVel.vel.y = 1;
                             newPosAndVel.pos.y += 1;
                         }
-                    }
+                    }*/
 
                 } else {
                     newPosAndVel.vel.y = -newPosAndVel.vel.y;
-                    boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(1, 0)));
+                    /*boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(1, 0)));
                     boolean oneLeft = isOccupied(add(newPosAndVel.pos, new Point(-1, 0)));
                     if (oneRight && oneLeft) {
                         newPosAndVel.vel.y = -newPosAndVel.vel.y;
@@ -311,7 +311,7 @@ public class Game {
                             newPosAndVel.vel.y = 0;
                             newPosAndVel.pos.y += 1;
                         }
-                    }
+                    }*/
                 }
             } else {
                 boolean oneRight = isOccupied(add(newPosAndVel.pos, new Point(newPosAndVel.vel.x, 0)));

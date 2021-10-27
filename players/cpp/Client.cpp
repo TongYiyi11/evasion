@@ -44,6 +44,10 @@ int main(int argc, char *argv[]) {
 	srand(time(NULL));
 
 	int port;
+	if (argc < 2) {
+	    printf("please provide argument\n");
+	    exit(1);
+	}
 	sscanf(argv[1], "%d", &port);
 
 	int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,7 +82,7 @@ int main(int argc, char *argv[]) {
 			if (strchr(buf, '\n') != strrchr(buf, '\n')) {
 				flag2 = true;
 			}
-			printf("%s", buf);
+			//printf("%s", buf);
 			const char s[2] = "\n";
 			char* token;
 			token = strtok(buf, s);
