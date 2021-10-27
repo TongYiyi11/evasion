@@ -11,7 +11,7 @@ This is the implementation of the architecture for the [evasion game](https://cs
 # Clone and build
 
 ```
-git clone git@github.com:etytan/evasion.git
+git clone git@github.com:TongYiyi11/evasion.git
 cd evasion
 mvn clean package
 ```
@@ -28,8 +28,8 @@ As an example if running with display using random players:
 ```
 java -jar ./target/evasion-1.0-SNAPSHOT.jar 9000 9001 100 10 127.0.0.1 8999
 node web.js 8999 8998
-python ./players/random_player.py 9000
-python ./players/random_player.py 9001
+java ./players/Client.java 9000
+python ./players/Client.py 9001
 ```
 The display will be shown in your web browser here: http://127.0.0.1:8998/
 
@@ -46,14 +46,28 @@ Immediately after that, the game will commence and the server will begin sending
 ```
 [playerTimeLeft] [gameNum] [tickNum] [maxWalls] [wallPlacementDelay] [boardsizeX] [boardsizeY] [currentWallTimer] [hunterXPos] [hunterYPos] [hunterXVel] [hunterYVel] [preyXPos] [preyYPos] [numWalls] {wall1 info} {wall2 info} ... 
 ```
+`[gameNum]`: 0 for the first round and 1 for the second round after switching roles.
 
-Each "{wall info}" above is just a set of numbers describing a wall on the playing field. There will be `[numWalls]` such sets.
+`[tickNum]`: current time unit.
+
+`[currentWallTimer]`: remain time to allow creation of the next wall.
+
+`[hunterXvel]` and `[hunterYvel]`: velocity of hunter, -1 or 1 at x or y direction.
+
+`{wall info}`: a set of numbers describing a wall on the playing field. There will be `[numWalls]` such sets.
 
 A horizontal wall is identified by: `0 [y] [x1] [x2]` where `y` is its y location, `x1` is the x location of its left-most pixel (i.e. smaller x value), and `x2` is the x location of its right-most pixel (i.e. larger x value). 
 
 A vertical wall is identified by: `1 [x] [y1] [y2]` where `x` is its x location, `y1` is the y location of its bottom-most pixel (i.e. smaller y value), and `y2` is the y location of its top-most pixel (i.e. larger y value).
 
 A diagonal wall is identified by: `2 [x1] [x2] [y1] [y2] [builddirection]` where the line from (x1,y1) to (x2,y2) represents the diagonal wall and builddirection represents whether the line began by incrementing in the x or y direction from its starting point. The value  `builddirection` will be a 0 if the line was begun by building in the x direction from its starting point (x1,y1), or a 1 if the line was begun by building in the y direction.
+
+```
+* *                           *
+  * *                         * *
+                                *
+  builddirection = 0       builddirection = 1
+```
 
 As an example, given `2 0 1 0 1 0`, the line would be represented by the points: (0,0), (1,0), (1,1). Given `2 0 1 0 1 1`, the line would be represented by the points: (0,0), (0,1), (1,1).
 
@@ -76,6 +90,7 @@ In response to each received game state message, the hunter should send the foll
 `[gameNum]` and `[tickNum]` should be relayed directly back to the server based on which game state message this action is in response to. 
 
 `[wall type to add]` should be 0 for no wall, 1 for horizontal wall, 2 for vertical wall, 3 for diagonal wall, 4 for counterdiagonal wall. There is no penalty for asking for a wall that can't be built for whatever reason.
+
 
 Note about diagonals:
 
@@ -151,6 +166,8 @@ First the pixels adjacent to both the hunter and the one being hit are considere
 
 (The same calculations are mirrored about the relevant axes for the other three directions in which the hunter can be traveling.)
 
+Note: The hunter may receive error message due to violating building rules (which will also be displayed on the screen) but will not be penalized.
+
 # Prey
 
 In response to each received game state message, the prey should send the following:
@@ -163,6 +180,33 @@ In response to each received game state message, the prey should send the follow
 
 The x and y movement specifies the direction in which the prey wishes to travel. This should be 1, 0, or -1 for each -- values outside this range will be clamped. On ticks in which the prey can't move (`tickNum % 2 == 0`), these fields will have no effect, but placeholder values should still be sent.
 
+The prey bounce behavior is similar to hunter except that prey can move horizontally or vertically. So below cases are considered:
+```
+
++-+-+    +-+-+
+|*| |    |*| |
++-+-+ -> +-+-+
+|*|←|    |*|→|  
++-+-+    +-+-+       (8)
+
++-+-+-+    +-+-+-+
+| | |*|    | | |*|
++-+-+-+    +-+-+-+
+| |*|←|    | |*| |
++-+-+-+ -> +-+-+-+
+|*| | |    |*| |↓| 
++-+-+-+    +-+-+-+   (9)
+
++-+-+-+    +-+-+-+
+| |*| |    | |*| |
++-+-+-+ -> +-+-+-+
+|*|←| |    |*|→| | 
++-+-+-+    +-+-+-+   
+| |*| |    | |*| | 
++-+-+-+    +-+-+-+   (10)
+
+```
+
 # Capture
 
 As noted in the class site game overview, the game is over when the Euclidean distance between hunter and prey is within four, and there is no wall between them. Specifically, this implementation calculates whether a wall is between them by using [Bresenham's line algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm) to find the points approximately on the line segment connecting them, and testing whether a wall occupies any of those points. 
@@ -171,9 +215,9 @@ Specifically, this [helpful reference](http://www.roguebasin.com/index.php?title
 
 # Display
 
-To enable the display, on your local machine, first run `node web.js [display port] [local webserver port]`, and go to `localhost:[local webserver port]` in your browser. You'll be accessing the port given by `[local webserver port]` locally, but if using energon you'll need a connection from energon to your local port given by `[display port]`, so router/firewall port forwarding for that port might be required. The `[display port]` is where the application sends the data to node.js. The `[local webserver port]` is where node.js sends the data to browser.
+To enable the display, on your local machine, first run `node web.js [display port] [local webserver port]`, and go to `localhost:[local webserver port]` in your browser. You'll be accessing the port given by `[local webserver port]` locally`[display port]`. The `[display port]` is where the application sends the data to node.js. The `[local webserver port]` is where node.js sends the data to browser.
 
-Now run the main java jar (on energon2 or locally), supplying the display host and display port parameters as listed in the run instructions above. If running locally, host should be "localhost". If running on energon, it should be the ip address of your local machine. (You can try using 'python display/getLocalIp.py' but if that fails any "what is my ip" web service should suffice.) The display port should match what you supplied to the node server.
+Now run the main java jar, supplying the display host and display port parameters as listed in the run instructions above. If running locally, host should be "localhost". The display port should match what you supplied to the node server.
 
 From this point everything should just work. You should not need to reset your browser tab or the node server -- not even in between restarts of the java jar.
 
@@ -194,4 +238,4 @@ To run: `python random_player.py [port on which to connect]`
 
 # Acknowledgements
 
-Original implementation provided by https://github.com/danielrotar/evasion
+Original implementation provided by https://github.com/etytan/evasion, https://github.com/danielrotar/evasion
