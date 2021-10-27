@@ -16,9 +16,9 @@ public class Game {
     public enum WallCreationType {
         NONE,
         HORIZONTAL,
-        VERTICAL,
-        DIAGONAL,
-        COUNTERDIAGONAL
+        VERTICAL
+        //DIAGONAL,
+        //COUNTERDIAGONAL
     }
 
     public Game(int maxWalls, int wallPlacementDelay, IO io, PrintWriter displayWriter,
@@ -157,87 +157,88 @@ public class Game {
             }
             VerticalWall verticalWall = new VerticalWall(pos.x, lesser.y + 1, greater.y - 1);
             return addWall(verticalWall);
-        } else if (action == WallCreationType.DIAGONAL) {
-            Point greater = new Point(pos);
-            Point lesser = new Point(pos);
-            int count = 0;
-            int builddirection = 0;
-            while (!isOccupied(greater)) {
-                // cannot build wall due to touching H or P
-                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
-                if (count % 2 == 0) {
-                    greater.y++;
-                } else {
-                    greater.x++;
-                }
-                count++;
-            }
-            if (count % 2 == 0) {
-                greater.x--;
-            } else {
-                greater.y--;
-            }
-            count = 0;
-            while (!isOccupied(lesser)) {
-                // cannot build wall due to touching H or P
-                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
-                if (count % 2 == 0) {
-                    lesser.x--;
-                } else {
-                    lesser.y--;
-                }
-                count++;
-            }
-            if (count % 2 == 0) {
-                lesser.y++;
-                builddirection = 0; //this means we start building by moving in the x direction
-            } else {
-                lesser.x++;
-                builddirection = 1; //this means we start building by moving in the y direction
-            }
-            DiagonalWall diagonalWall = new DiagonalWall(lesser.x, greater.x, lesser.y, greater.y, builddirection);
-            return addWall(diagonalWall);
-        } else if (action == WallCreationType.COUNTERDIAGONAL) {
-            Point greater = new Point(pos);
-            Point lesser = new Point(pos);
-            int count = 0;
-            int builddirection = 0;
-            while (!isOccupied(greater)) {
-                // cannot build wall due to touching H or P
-                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
-                if (count % 2 == 0) {
-                    greater.y--;
-                } else {
-                    greater.x++;
-                }
-                count++;
-            }
-            if (count % 2 == 0) {
-                greater.x--;
-            } else {
-                greater.y++;
-            }
-            count = 0;
-            while (!isOccupied(lesser)) {
-                // cannot build wall due to touching H or P
-                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
-                if (count % 2 == 0) {
-                    lesser.x--;
-                } else {
-                    lesser.y++;
-                }
-                count++;
-            }
-            if (count % 2 == 0) {
-                lesser.y--;
-                builddirection = 0; //this means we start building by moving in the x direction
-            } else {
-                lesser.x++;
-                builddirection = 1; //this means we start building by moving in the y direction
-            }
-            CounterDiagonalWall counterDiagonalWall = new CounterDiagonalWall(lesser.x, greater.x, lesser.y, greater.y, builddirection);
-            return addWall(counterDiagonalWall);
         }
+//        else if (action == WallCreationType.DIAGONAL) {
+//            Point greater = new Point(pos);
+//            Point lesser = new Point(pos);
+//            int count = 0;
+//            int builddirection = 0;
+//            while (!isOccupied(greater)) {
+//                // cannot build wall due to touching H or P
+//                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
+//                if (count % 2 == 0) {
+//                    greater.y++;
+//                } else {
+//                    greater.x++;
+//                }
+//                count++;
+//            }
+//            if (count % 2 == 0) {
+//                greater.x--;
+//            } else {
+//                greater.y--;
+//            }
+//            count = 0;
+//            while (!isOccupied(lesser)) {
+//                // cannot build wall due to touching H or P
+//                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
+//                if (count % 2 == 0) {
+//                    lesser.x--;
+//                } else {
+//                    lesser.y--;
+//                }
+//                count++;
+//            }
+//            if (count % 2 == 0) {
+//                lesser.y++;
+//                builddirection = 0; //this means we start building by moving in the x direction
+//            } else {
+//                lesser.x++;
+//                builddirection = 1; //this means we start building by moving in the y direction
+//            }
+//            DiagonalWall diagonalWall = new DiagonalWall(lesser.x, greater.x, lesser.y, greater.y, builddirection);
+//            return addWall(diagonalWall);
+//        } else if (action == WallCreationType.COUNTERDIAGONAL) {
+//            Point greater = new Point(pos);
+//            Point lesser = new Point(pos);
+//            int count = 0;
+//            int builddirection = 0;
+//            while (!isOccupied(greater)) {
+//                // cannot build wall due to touching H or P
+//                if(errorTouch(greater, state.hunterPosAndVel.pos, state.preyPos)) return false;
+//                if (count % 2 == 0) {
+//                    greater.y--;
+//                } else {
+//                    greater.x++;
+//                }
+//                count++;
+//            }
+//            if (count % 2 == 0) {
+//                greater.x--;
+//            } else {
+//                greater.y++;
+//            }
+//            count = 0;
+//            while (!isOccupied(lesser)) {
+//                // cannot build wall due to touching H or P
+//                if(errorTouch(lesser, state.hunterPosAndVel.pos, state.preyPos)) return false;
+//                if (count % 2 == 0) {
+//                    lesser.x--;
+//                } else {
+//                    lesser.y++;
+//                }
+//                count++;
+//            }
+//            if (count % 2 == 0) {
+//                lesser.y--;
+//                builddirection = 0; //this means we start building by moving in the x direction
+//            } else {
+//                lesser.x++;
+//                builddirection = 1; //this means we start building by moving in the y direction
+//            }
+//            CounterDiagonalWall counterDiagonalWall = new CounterDiagonalWall(lesser.x, greater.x, lesser.y, greater.y, builddirection);
+//            return addWall(counterDiagonalWall);
+//        }
         return false;
     }
 

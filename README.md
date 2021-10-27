@@ -60,21 +60,6 @@ A horizontal wall is identified by: `0 [y] [x1] [x2]` where `y` is its y locatio
 
 A vertical wall is identified by: `1 [x] [y1] [y2]` where `x` is its x location, `y1` is the y location of its bottom-most pixel (i.e. smaller y value), and `y2` is the y location of its top-most pixel (i.e. larger y value).
 
-A diagonal wall is identified by: `2 [x1] [x2] [y1] [y2] [builddirection]` where the line from (x1,y1) to (x2,y2) represents the diagonal wall and builddirection represents whether the line began by incrementing in the x or y direction from its starting point. The value  `builddirection` will be a 0 if the line was begun by building in the x direction from its starting point (x1,y1), or a 1 if the line was begun by building in the y direction.
-
-```
-* *                           *
-  * *                         * *
-                                *
-  builddirection = 0       builddirection = 1
-```
-
-As an example, given `2 0 1 0 1 0`, the line would be represented by the points: (0,0), (1,0), (1,1). Given `2 0 1 0 1 1`, the line would be represented by the points: (0,0), (0,1), (1,1).
-
-A counterdiagonal wall is identified by: `3 [x1] [x2] [y1] [y2] [builddirection]` where the line from (x1,y1) to (x2,y2) represents the counterdiagonal wall and builddirection represents whether the line began by incrementing in the x or y direction from its starting point. The value  `builddirection` will be a 0 if the line was begun by building in the x direction from its starting point (x1,y1), or a 1 if the line was begun by building in the y direction.
-
-As an example, given `3 0 1 1 0 0`, the line would be represented by the points: (0,1), (1,1), (1,0). Given `3 0 1 1 0 1`, the line would be represented by the points: (0,1), (0,0), (1,0).
-
 The order of the `{wall info}` sets is relevent; when the hunter references a wall to delete it should do so using the wall's place in this list, starting at 0.
 
 Note that both players get the same game state information each tick, EXCEPT for playerTimeLeft which is specific to the given player (and given in milliseconds). (Players are not permitted to know how close their opponents are to exhausting their time limits.)
@@ -89,14 +74,7 @@ In response to each received game state message, the hunter should send the foll
 
 `[gameNum]` and `[tickNum]` should be relayed directly back to the server based on which game state message this action is in response to. 
 
-`[wall type to add]` should be 0 for no wall, 1 for horizontal wall, 2 for vertical wall, 3 for diagonal wall, 4 for counterdiagonal wall. There is no penalty for asking for a wall that can't be built for whatever reason.
-
-
-Note about diagonals:
-
-Diagonal is when x and y are both increasing or both are decreasing. Currently given a diagonal will always be created where Y is incremented first to start off the diagonal. EX: given (i,j) the diagonal (i-1,j-1), (i-1,j), (i,j), (i,j+1), (i+1,j+1) is created.
-
-Counterdiagonal is where if x is increasing y is decreasing. The Counterdiagonal will always be created where Y is decremented first. EX: given(i,j) the diagonal (i-1,j+1) (i-1,j) (i,j), (i,j-1), (i+1,j-1) is created.
+`[wall type to add]` should be 0 for no wall, 1 for horizontal wall, 2 for vertical wall. There is no penalty for asking for a wall that can't be built for whatever reason.
 
 Each `[wall index to delete]` specifies a wall to be deleted, based on its position (starting at 0) in the game state message. There can be any number of these, or none. Asking to delete a wall index that doesn't exist has no effect.
 
@@ -189,21 +167,6 @@ The prey bounce behavior is similar to hunter except that prey can move horizont
 |*|←|    |*|→|  
 +-+-+    +-+-+       (8)
 
-+-+-+-+    +-+-+-+
-| | |*|    | | |*|
-+-+-+-+    +-+-+-+
-| |*|←|    | |*| |
-+-+-+-+ -> +-+-+-+
-|*| | |    |*| |↓| 
-+-+-+-+    +-+-+-+   (9)
-
-+-+-+-+    +-+-+-+
-| |*| |    | |*| |
-+-+-+-+ -> +-+-+-+
-|*|←| |    |*|→| | 
-+-+-+-+    +-+-+-+   
-| |*| |    | |*| | 
-+-+-+-+    +-+-+-+   (10)
 
 ```
 
@@ -221,8 +184,6 @@ Now run the main java jar, supplying the display host and display port parameter
 
 From this point everything should just work. You should not need to reset your browser tab or the node server -- not even in between restarts of the java jar.
 
-Note about diagonals: in the HTML for the display, the Y axis is flipped so the diagonal will look like a counterdiagonal.
-
 
 # Other notes
 
@@ -232,9 +193,9 @@ The current game is over when the server sends the message `hunter` or `prey`, m
 
 # Player code
 
-Sample player code can be found in the "players" directory (random_player.py).
+Sample player code can be found in the "./players/python" directory (Client.py).
 
-To run: `python random_player.py [port on which to connect]`
+To run: `python Client.py [port on which to connect]`  (python 2 is supported)
 
 # Acknowledgements
 

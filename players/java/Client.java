@@ -98,7 +98,7 @@ public class Client {
 
     public String sendmove(String state){
         // TODO Given the state of the game, return formatted move to server.
-        // Please replace below with your own algorithm
+        // replace with your own algorithm
         // Random player
         String[] data = state.split(" ");
         String tosend = "";
@@ -106,7 +106,7 @@ public class Client {
         if(hunter){
             int x = r.nextInt(50);
             String wall = "0";
-            if(x < 4){
+            if(x < 2){
                 wall = Integer.toString(x + 1);
             }
             if(r.nextInt(80) == 0){

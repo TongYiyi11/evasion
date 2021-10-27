@@ -105,26 +105,6 @@ public class GameHost {
                     preyTimeout = true;
                 }
 
-//                if (hunterTimeout || preyTimeout) {
-//                    String result;
-//                    if (hunterTimeout && preyTimeout) {
-//                        result = "Both time out on tick " + game.getState().ticknum + "! Trying to resume...";
-//                    } else if (hunterTimeout) {
-//                        result = io.getName(hunterIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
-//                    } else {
-//                        result = io.getName(preyIndex) + " time out on tick " + game.getState().ticknum + "! Trying to resume...";
-//                    }
-//                    System.out.println(result);
-//                    if (hunterTimeout) {
-//                        hunterResponseFuture.get();
-//                    }
-//                    if (preyTimeout) {
-//                        preyResponseFuture.get();
-//                    }
-//                    break;
-//                }
-
-
                 if (hunterTimeout || preyTimeout) {
                     String result;
                     if (hunterTimeout && preyTimeout) {
@@ -163,11 +143,12 @@ public class GameHost {
                         hunterWallAction = Game.WallCreationType.HORIZONTAL;
                     } else if (hunterData.get(2) == 2) {
                         hunterWallAction = Game.WallCreationType.VERTICAL;
-                    } else if (hunterData.get(2) == 3) {
-                        hunterWallAction = Game.WallCreationType.DIAGONAL;
-                    } else if (hunterData.get(2) == 4) {
-                        hunterWallAction = Game.WallCreationType.COUNTERDIAGONAL;
                     }
+//                    else if (hunterData.get(2) == 3) {
+//                        hunterWallAction = Game.WallCreationType.DIAGONAL;
+//                    } else if (hunterData.get(2) == 4) {
+//                        hunterWallAction = Game.WallCreationType.COUNTERDIAGONAL;
+//                    }
                     hunterWallsToDelete = hunterData.subList(3, hunterData.size());
                 }
                 if(msg.length() != 0){
