@@ -72,7 +72,9 @@ public class Game {
         if(msg.length() != 0){
             io.sendLine(hunterIndex, msg);
             System.out.println(msg);
-            displayWriter.println(msg);
+            if (displayWriter != null) {
+                displayWriter.println(msg);
+            }
             return false;
         }
         return true;
@@ -116,7 +118,9 @@ public class Game {
         if(msg.length() != 0){
             io.sendLine(hunterIndex, msg);
             System.out.println(msg);
-            displayWriter.println(msg);
+            if (displayWriter != null) {
+                displayWriter.println(msg);
+            }
             return true;
         }
         return false;

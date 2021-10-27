@@ -173,7 +173,9 @@ public class GameHost {
                 if(msg.length() != 0){
                     io.sendLine(hunterIndex, msg);
                     System.out.println(msg);
-                    displayWriter.println(msg);
+                    if (displayWriter != null) {
+                        displayWriter.println(msg);
+                    }
                 }
 
                 // parse prey move
@@ -195,7 +197,9 @@ public class GameHost {
                 if(msg.length() != 0){
                     io.sendLine(preyIndex, msg);
                     System.out.println(msg);
-                    displayWriter.println(msg);
+                    if (displayWriter != null) {
+                        displayWriter.println(msg);
+                    }
                 }
 
                 done = game.tick(hunterWallAction, hunterWallsToDelete, preyMovement);
